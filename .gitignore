@@ -1,0 +1,8 @@
+/target/
+/artifacts/
+*.pdb
+*.exe
+*.dll
+*.lib
+*.exp
+*.log

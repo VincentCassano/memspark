@@ -1,0 +1,19 @@
+[package]
+name = "memspark-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Slint desktop UI for MemSpark."
+rust-version.workspace = true
+build = "build.rs"
+
+[dependencies]
+memspark-core = { path = "../memspark-core" }
+serde.workspace = true
+serde_json.workspace = true
+slint.workspace = true
+
+[build-dependencies]
+slint-build.workspace = true
+winres = "0.1"

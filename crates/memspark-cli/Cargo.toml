@@ -1,0 +1,23 @@
+[package]
+name = "memspark-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Command line interface for MemSpark."
+rust-version.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "memspark"
+path = "src/main.rs"
+
+[dependencies]
+clap.workspace = true
+memspark-core = { path = "../memspark-core" }
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[build-dependencies]
+winres = "0.1"

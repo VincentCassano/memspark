@@ -1,0 +1,456 @@
+import { DashboardPage } from "dashboard.slint";
+import { ReportPage } from "report.slint";
+import { SettingsPage } from "settings.slint";
+
+component NavButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+    in property <bool> light-theme: false;
+    callback clicked();
+    height: 48px;
+    border-radius: 10px;
+    background: root.selected ? #1a5bc9 : (root.light-theme ? (touch.has-hover ? #dde7f4 : #edf3fa) : (touch.has-hover ? #151d2a : #0d131d));
+    HorizontalLayout {
+        padding-left: 18px;
+        padding-right: 14px;
+        spacing: 0px;
+        Text {
+            text: root.label;
+            color: root.selected ? #ffffff : (root.light-theme ? #304057 : #b8c2d1);
+            font-size: 15px;
+            font-family: "Microsoft YaHei UI";
+            font-weight: 600;
+            horizontal-alignment: left;
+            vertical-alignment: center;
+        }
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+component AboutSafetyCard inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <bool> light-theme: false;
+    height: 88px;
+    border-radius: 10px;
+    background: root.light-theme ? #f3f7fc : #101926;
+    VerticalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        spacing: 6px;
+        Text {
+            text: root.title;
+            color: root.light-theme ? #172033 : #f4f7fb;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: "Microsoft YaHei UI";
+            overflow: elide;
+        }
+        Text {
+            text: root.description;
+            color: root.light-theme ? #5d6d80 : #8fa0b5;
+            font-size: 12px;
+            font-family: "Microsoft YaHei UI";
+            wrap: word-wrap;
+        }
+    }
+}
+
+component AboutPage inherits Rectangle {
+    in property <string> text-title;
+    in property <string> text-description;
+    in property <string> text-safety-boundary;
+    in property <string> text-no-process-killing;
+    in property <string> text-no-process-injection;
+    in property <string> text-no-memory-modification;
+    in property <string> text-manual-execution-only;
+    in property <string> text-about-system-boundary-desc;
+    in property <string> text-about-no-injection-desc;
+    in property <string> text-about-no-memory-modification-desc;
+    in property <string> text-about-manual-execution-desc;
+    in property <string> text-license;
+    in property <string> text-github;
+    in property <bool> light-theme: false;
+
+    background: root.light-theme ? #f5f8fc : #0f141d;
+    VerticalLayout {
+        padding: 24px;
+        spacing: 16px;
+        Text { text: root.text-title; color: root.light-theme ? #172033 : #f4f7fb; font-size: 28px; font-weight: 700; font-family: "Microsoft YaHei UI"; }
+        Rectangle {
+            border-radius: 12px;
+            background: root.light-theme ? #ffffff : #151c27;
+            min-height: 430px;
+            VerticalLayout {
+                padding: 20px;
+                spacing: 16px;
+                Rectangle {
+                    border-radius: 12px;
+                    background: root.light-theme ? #f3f7fc : #101926;
+                    min-height: 128px;
+                    VerticalLayout {
+                        padding: 18px;
+                        spacing: 8px;
+                        Text { text: "MemSpark 0.1.4"; color: root.light-theme ? #172033 : #f4f7fb; font-size: 28px; font-weight: 700; font-family: "Microsoft YaHei UI"; }
+                        Text { text: root.text-description; color: root.light-theme ? #405065 : #cdd6e3; font-size: 15px; font-family: "Microsoft YaHei UI"; wrap: word-wrap; }
+                    }
+                }
+                Text { text: root.text-safety-boundary; color: root.light-theme ? #172033 : #f4f7fb; font-size: 18px; font-weight: 700; font-family: "Microsoft YaHei UI"; }
+                HorizontalLayout {
+                    spacing: 12px;
+                    AboutSafetyCard { width: (root.width - 100px) / 2; light-theme: root.light-theme; title: root.text-no-process-killing; description: root.text-about-system-boundary-desc; }
+                    AboutSafetyCard { width: (root.width - 100px) / 2; light-theme: root.light-theme; title: root.text-no-process-injection; description: root.text-about-no-injection-desc; }
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    AboutSafetyCard { width: (root.width - 100px) / 2; light-theme: root.light-theme; title: root.text-no-memory-modification; description: root.text-about-no-memory-modification-desc; }
+                    AboutSafetyCard { width: (root.width - 100px) / 2; light-theme: root.light-theme; title: root.text-manual-execution-only; description: root.text-about-manual-execution-desc; }
+                }
+                Text { text: root.text-license; color: root.light-theme ? #5d6d80 : #9aa8ba; font-size: 14px; font-family: "Microsoft YaHei UI"; }
+                Text { text: root.text-github; color: root.light-theme ? #1767c7 : #8fc7ff; font-size: 14px; font-family: "Microsoft YaHei UI"; }
+            }
+        }
+    }
+}
+
+export component AppWindow inherits Window {
+    title: "MemSpark";
+    icon: @image-url("../assets/memspark-icon.png");
+    width: 1160px;
+    height: 700px;
+    background: root.ui-theme == "light" ? #f5f8fc : #0b1018;
+
+    in-out property <string> current-page: "Dashboard";
+    in-out property <string> report-text: "";
+    in-out property <string> report-before-memory-text: "--";
+    in-out property <string> report-after-memory-text: "--";
+    in-out property <string> report-available-increase-text: "--";
+    in-out property <string> report-scanned-text: "--";
+    in-out property <string> report-trimmed-text: "--";
+    in-out property <string> report-skipped-text: "--";
+    in-out property <string> report-failed-text: "--";
+    in-out property <string> report-top-trimmed-text: "--";
+    in-out property <string> report-primary-process-title: "--";
+    in-out property <string> report-conclusion-text: "--";
+    in-out property <string> report-type-text: "--";
+    in-out property <string> report-mode-text: "--";
+    in-out property <string> report-duration-text: "--";
+    in-out property <string> report-available-change-detail-text: "--";
+    in-out property <string> report-system-release-detail-text: "--";
+    in-out property <string> report-skip-summary-text: "--";
+    in-out property <string> log-text: "";
+    in-out property <bool> busy: false;
+    in-out property <bool> task-feedback-visible: false;
+    in-out property <string> task-status-text: "";
+    in-out property <float> task-progress-ratio: 0;
+    in-out property <bool> is-refreshing: false;
+    in-out property <float> memory-usage-percent: 0;
+    in-out property <float> memory-usage-ratio: 0;
+    in-out property <float> available-ratio: 0;
+    in-out property <float> commit-ratio: 0;
+    in-out property <float> cache-ratio: 0;
+    in-out property <float> process-ratio: 0;
+    in-out property <string> memory-usage-text: "--";
+    in-out property <string> physical-used-text: "--";
+    in-out property <string> physical-total-text: "--";
+    in-out property <string> available-text: "--";
+    in-out property <string> available-percent-text: "--";
+    in-out property <string> commit-text: "--";
+    in-out property <string> system-cache-text: "--";
+    in-out property <string> process-count-text: "--";
+    in-out property <string> memory-hardware-summary: "--";
+    in-out property <string> report-path-text: "";
+    in-out property <string> ui-language: "zh-CN";
+    in-out property <string> ui-theme: "dark";
+    in-out property <string> text-app-subtitle: "";
+    in-out property <string> text-nav-dashboard: "";
+    in-out property <string> text-nav-report: "";
+    in-out property <string> text-nav-settings: "";
+    in-out property <string> text-nav-about: "";
+    in-out property <string> text-dashboard-tagline: "";
+    in-out property <string> text-dashboard-title: "";
+    in-out property <string> text-memory-hardware: "";
+    in-out property <string> text-current-memory: "";
+    in-out property <string> text-used-memory: "";
+    in-out property <string> text-memory-overview: "";
+    in-out property <string> text-available-memory: "";
+    in-out property <string> text-used-ratio: "";
+    in-out property <string> text-available-ratio: "";
+    in-out property <string> text-commit-usage: "";
+    in-out property <string> text-system-cache: "";
+    in-out property <string> text-process-count: "";
+    in-out property <string> text-no-kill: "";
+    in-out property <string> text-no-kill-desc: "";
+    in-out property <string> text-no-inject: "";
+    in-out property <string> text-no-inject-desc: "";
+    in-out property <string> text-manual-only: "";
+    in-out property <string> text-manual-only-desc: "";
+    in-out property <string> text-no-default-cache-cleanup: "";
+    in-out property <string> text-no-default-cache-cleanup-desc: "";
+    in-out property <string> text-normal-optimize: "";
+    in-out property <string> text-strong-optimize: "";
+    in-out property <string> text-refresh-status: "";
+    in-out property <string> text-refreshing: "";
+    in-out property <string> text-auto-refresh: "";
+    in-out property <string> text-available-hint: "";
+    in-out property <string> text-commit-hint: "";
+    in-out property <string> text-cache-hint: "";
+    in-out property <string> text-process-hint: "";
+    in-out property <string> text-report-title: "";
+    in-out property <string> text-reload-last-report: "";
+    in-out property <string> text-before: "";
+    in-out property <string> text-after: "";
+    in-out property <string> text-available-increased: "";
+    in-out property <string> text-processes-scanned: "";
+    in-out property <string> text-processes-trimmed: "";
+    in-out property <string> text-processes-skipped: "";
+    in-out property <string> text-failed: "";
+    in-out property <string> text-top-trimmed-processes: "";
+    in-out property <string> text-detailed-report: "";
+    in-out property <string> text-report-conclusion-section: "";
+    in-out property <string> text-report-core-results: "";
+    in-out property <string> text-report-target-hint: "";
+    in-out property <string> text-report-working-set-hint: "";
+    in-out property <string> text-report-before-after: "";
+    in-out property <string> text-report-change-note: "";
+    in-out property <string> text-report-process-table-header: "";
+    in-out property <string> text-report-skip-summary-section: "";
+    in-out property <string> text-report-skip-table-header: "";
+    in-out property <string> text-settings-title: "";
+    in-out property <string> text-settings-hint: "";
+    in-out property <string> text-reports: "";
+    in-out property <string> text-initialize-config: "";
+    in-out property <string> text-language: "";
+    in-out property <string> text-simplified-chinese: "";
+    in-out property <string> text-english: "";
+    in-out property <string> text-language-restart-hint: "";
+    in-out property <string> text-theme: "";
+    in-out property <string> text-dark: "";
+    in-out property <string> text-light: "";
+    in-out property <string> text-reports-desc: "";
+    in-out property <string> text-settings-apply: "";
+    in-out property <string> text-theme-dark-ready: "";
+    in-out property <string> text-settings-open-report: "";
+    in-out property <string> text-settings-open-folder: "";
+    in-out property <string> text-settings-choose-location: "";
+    in-out property <string> text-settings-clear-history: "";
+    in-out property <string> text-settings-clear-logs: "";
+    in-out property <string> text-settings-choose-save-location: "";
+    in-out property <string> text-settings-clear-report-history: "";
+    in-out property <string> text-settings-clear-developer-logs: "";
+    in-out property <string> text-about-title: "";
+    in-out property <string> text-about-description: "";
+    in-out property <string> text-safety-boundary: "";
+    in-out property <string> text-no-process-killing: "";
+    in-out property <string> text-no-process-injection: "";
+    in-out property <string> text-no-memory-modification: "";
+    in-out property <string> text-manual-execution-only: "";
+    in-out property <string> text-about-system-boundary-desc: "";
+    in-out property <string> text-about-no-injection-desc: "";
+    in-out property <string> text-about-no-memory-modification-desc: "";
+    in-out property <string> text-about-manual-execution-desc: "";
+    in-out property <string> text-license: "";
+    in-out property <string> text-github: "";
+
+    callback refresh-status();
+    callback page-changed(string);
+    callback run-trim(string, bool);
+    callback load-report();
+    callback init-config();
+    callback select-language(string);
+    callback select-theme(string);
+    callback open-report();
+    callback open-report-folder();
+    callback choose-report-path();
+    callback clear-report-history();
+    callback clear-developer-logs();
+    callback apply-settings();
+
+    HorizontalLayout {
+        Rectangle {
+            width: 212px;
+            background: root.ui-theme == "light" ? #e8eef7 : #0b111a;
+            VerticalLayout {
+                padding: 14px;
+                spacing: 14px;
+                Rectangle {
+                    border-radius: 12px;
+                    background: root.ui-theme == "light" ? #ffffff : #111a27;
+                    height: 118px;
+                    VerticalLayout {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                        padding-top: 18px;
+                        padding-bottom: 18px;
+                        spacing: 5px;
+                        Text { text: "MemSpark"; color: root.ui-theme == "light" ? #172033 : #f4f7fb; font-family: "Microsoft YaHei UI"; font-size: 26px; font-weight: 700; }
+                        Text { text: root.text-app-subtitle; color: root.ui-theme == "light" ? #5d6d80 : #8a98aa; font-family: "Microsoft YaHei UI"; font-size: 13px; font-weight: 600; }
+                    }
+                }
+                VerticalLayout {
+                    spacing: 8px;
+                    NavButton { light-theme: root.ui-theme == "light"; label: root.text-nav-dashboard; selected: root.current-page == "Dashboard"; clicked => { root.current-page = "Dashboard"; root.page-changed(root.current-page); } }
+                    NavButton { light-theme: root.ui-theme == "light"; label: root.text-nav-report; selected: root.current-page == "Report"; clicked => { root.current-page = "Report"; root.page-changed(root.current-page); root.load-report(); } }
+                    NavButton { light-theme: root.ui-theme == "light"; label: root.text-nav-settings; selected: root.current-page == "Settings"; clicked => { root.current-page = "Settings"; root.page-changed(root.current-page); } }
+                    NavButton { light-theme: root.ui-theme == "light"; label: root.text-nav-about; selected: root.current-page == "About"; clicked => { root.current-page = "About"; root.page-changed(root.current-page); } }
+                }
+            }
+        }
+
+        Rectangle {
+            background: root.ui-theme == "light" ? #f5f8fc : #0f141d;
+            if root.current-page == "Dashboard" : DashboardPage {
+                light-theme: root.ui-theme == "light";
+                memory-usage-ratio: root.memory-usage-ratio;
+                available-ratio: root.available-ratio;
+                commit-ratio: root.commit-ratio;
+                cache-ratio: root.cache-ratio;
+                process-ratio: root.process-ratio;
+                memory-usage-text: root.memory-usage-text;
+                physical-used-text: root.physical-used-text;
+                physical-total-text: root.physical-total-text;
+                available-text: root.available-text;
+                available-percent-text: root.available-percent-text;
+                commit-text: root.commit-text;
+                system-cache-text: root.system-cache-text;
+                process-count-text: root.process-count-text;
+                memory-hardware-summary: root.memory-hardware-summary;
+                is-refreshing: root.is-refreshing;
+                busy: root.busy;
+                task-feedback-visible: root.task-feedback-visible;
+                task-status-text: root.task-status-text;
+                task-progress-ratio: root.task-progress-ratio;
+                text-title: root.text-dashboard-title;
+                text-tagline: root.text-dashboard-tagline;
+                text-memory-hardware: root.text-memory-hardware;
+                text-current-memory: root.text-current-memory;
+                text-used-memory: root.text-used-memory;
+                text-available-memory: root.text-available-memory;
+                text-used-ratio: root.text-used-ratio;
+                text-available-ratio: root.text-available-ratio;
+                text-commit-usage: root.text-commit-usage;
+                text-system-cache: root.text-system-cache;
+                text-process-count: root.text-process-count;
+                text-no-kill: root.text-no-kill;
+                text-no-kill-desc: root.text-no-kill-desc;
+                text-no-inject: root.text-no-inject;
+                text-no-inject-desc: root.text-no-inject-desc;
+                text-manual-only: root.text-manual-only;
+                text-manual-only-desc: root.text-manual-only-desc;
+                text-no-default-cache-cleanup: root.text-no-default-cache-cleanup;
+                text-no-default-cache-cleanup-desc: root.text-no-default-cache-cleanup-desc;
+                text-normal-optimize: root.text-normal-optimize;
+                text-strong-optimize: root.text-strong-optimize;
+                text-refresh-status: root.text-refresh-status;
+                text-refreshing: root.text-refreshing;
+                text-auto-refresh: root.text-auto-refresh;
+                text-available-hint: root.text-available-hint;
+                text-commit-hint: root.text-commit-hint;
+                text-cache-hint: root.text-cache-hint;
+                text-process-hint: root.text-process-hint;
+                refresh => { root.refresh-status(); }
+                normal-optimize => { root.run-trim("memory", false); }
+                strong-optimize => { root.run-trim("memory", false); }
+            }
+            if root.current-page == "Report" : ReportPage {
+                light-theme: root.ui-theme == "light";
+                report-text: root.report-text;
+                before-memory-text: root.report-before-memory-text;
+                after-memory-text: root.report-after-memory-text;
+                available-increase-text: root.report-available-increase-text;
+                scanned-text: root.report-scanned-text;
+                trimmed-text: root.report-trimmed-text;
+                skipped-text: root.report-skipped-text;
+                failed-text: root.report-failed-text;
+                top-trimmed-text: root.report-top-trimmed-text;
+                primary-process-title: root.report-primary-process-title;
+                conclusion-text: root.report-conclusion-text;
+                report-type-text: root.report-type-text;
+                report-mode-text: root.report-mode-text;
+                report-duration-text: root.report-duration-text;
+                available-change-detail-text: root.report-available-change-detail-text;
+                system-release-detail-text: root.report-system-release-detail-text;
+                skip-summary-text: root.report-skip-summary-text;
+                text-title: root.text-report-title;
+                text-reload-last-report: root.text-reload-last-report;
+                text-before: root.text-before;
+                text-after: root.text-after;
+                text-available-increased: root.text-available-increased;
+                text-processes-scanned: root.text-processes-scanned;
+                text-processes-trimmed: root.text-processes-trimmed;
+                text-processes-skipped: root.text-processes-skipped;
+                text-failed: root.text-failed;
+                text-top-trimmed-processes: root.text-top-trimmed-processes;
+                text-detailed-report: root.text-detailed-report;
+                text-conclusion-section: root.text-report-conclusion-section;
+                text-core-results: root.text-report-core-results;
+                text-target-hint: root.text-report-target-hint;
+                text-working-set-hint: root.text-report-working-set-hint;
+                text-before-after: root.text-report-before-after;
+                text-change-note: root.text-report-change-note;
+                text-process-table-header: root.text-report-process-table-header;
+                text-skip-summary-section: root.text-report-skip-summary-section;
+                text-skip-table-header: root.text-report-skip-table-header;
+                reload => { root.load-report(); }
+            }
+            if root.current-page == "Settings" : SettingsPage {
+                light-theme: root.ui-theme == "light";
+                log-text: root.log-text;
+                text-title: root.text-settings-title;
+                text-hint: root.text-settings-hint;
+                text-reports: root.text-reports;
+                text-initialize-config: root.text-initialize-config;
+                text-language: root.text-language;
+                text-simplified-chinese: root.text-simplified-chinese;
+                text-english: root.text-english;
+                text-language-restart-hint: root.text-language-restart-hint;
+                text-theme: root.text-theme;
+                text-dark: root.text-dark;
+                text-light: root.text-light;
+                text-reports-desc: root.text-reports-desc;
+                text-settings-apply: root.text-settings-apply;
+                text-theme-dark-ready: root.text-theme-dark-ready;
+                text-open-report: root.text-settings-open-report;
+                text-open-folder: root.text-settings-open-folder;
+                text-choose-location: root.text-settings-choose-location;
+                text-clear-history: root.text-settings-clear-history;
+                text-clear-logs: root.text-settings-clear-logs;
+                text-choose-save-location: root.text-settings-choose-save-location;
+                text-clear-report-history: root.text-settings-clear-report-history;
+                text-clear-developer-logs: root.text-settings-clear-developer-logs;
+                report-path-text: root.report-path-text;
+                ui-language: root.ui-language;
+                ui-theme: root.ui-theme;
+                init-config => { root.init-config(); }
+                select-language(value) => { root.select-language(value); }
+                select-theme(value) => { root.select-theme(value); }
+                open-report => { root.open-report(); }
+                open-report-folder => { root.open-report-folder(); }
+                choose-report-path => { root.choose-report-path(); }
+                clear-report-history => { root.clear-report-history(); }
+                clear-developer-logs => { root.clear-developer-logs(); }
+                apply-settings => { root.apply-settings(); }
+            }
+            if root.current-page == "About" : AboutPage {
+                light-theme: root.ui-theme == "light";
+                text-title: root.text-about-title;
+                text-description: root.text-about-description;
+                text-safety-boundary: root.text-safety-boundary;
+                text-no-process-killing: root.text-no-process-killing;
+                text-no-process-injection: root.text-no-process-injection;
+                text-no-memory-modification: root.text-no-memory-modification;
+                text-manual-execution-only: root.text-manual-execution-only;
+                text-about-system-boundary-desc: root.text-about-system-boundary-desc;
+                text-about-no-injection-desc: root.text-about-no-injection-desc;
+                text-about-no-memory-modification-desc: root.text-about-no-memory-modification-desc;
+                text-about-manual-execution-desc: root.text-about-manual-execution-desc;
+                text-license: root.text-license;
+                text-github: root.text-github;
+            }
+        }
+    }
+}

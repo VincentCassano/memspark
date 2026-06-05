@@ -1,0 +1,642 @@
+component ActionButton inherits Rectangle {
+    in property <string> text;
+    in property <color> button-color;
+    in property <bool> enabled: true;
+    in property <bool> light-theme: false;
+    callback clicked();
+
+    height: 44px;
+    min-width: 132px;
+    border-radius: 10px;
+    background: !root.enabled ? (root.light-theme ? #d5deeb : #263142) : (touch.pressed ? #1a55b8 : root.button-color);
+
+    Text {
+        text: root.text;
+        color: root.enabled ? #ffffff : #8491a4;
+        font-family: "Microsoft YaHei UI";
+        font-size: 14px;
+        font-weight: 600;
+        x: 10px;
+        y: 0px;
+        width: parent.width - 20px;
+        height: parent.height;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    touch := TouchArea {
+        clicked => {
+            if root.enabled {
+                root.clicked();
+            }
+        }
+    }
+}
+
+component IconButton inherits Rectangle {
+    in property <string> icon;
+    in property <bool> enabled: true;
+    in property <bool> light-theme: false;
+    callback clicked();
+
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: !root.enabled ? (root.light-theme ? #d5deeb : #263142) : (root.light-theme ? (touch.pressed ? #cbd8e8 : (touch.has-hover ? #dbe6f4 : #edf3fa)) : (touch.pressed ? #1a2432 : (touch.has-hover ? #33445c : #263347)));
+    border-width: 1px;
+    border-color: root.light-theme ? #bccadc : #3c4c63;
+
+    Text {
+        text: root.icon;
+        color: root.enabled ? (root.light-theme ? #172033 : #ffffff) : #8491a4;
+        font-family: "Segoe UI Symbol";
+        font-size: 25px;
+        font-weight: 700;
+        x: 0px;
+        y: -3px;
+        width: parent.width;
+        height: parent.height;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => {
+            if root.enabled {
+                root.clicked();
+            }
+        }
+    }
+}
+
+component SafetyPrincipleCard inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <bool> light-theme: false;
+
+    border-radius: 11px;
+    background: root.light-theme ? #ffffff : #101a27;
+    border-width: 1px;
+    border-color: root.light-theme ? #bfd1e6 : #22344a;
+    height: 84px;
+
+    HorizontalLayout {
+        padding-right: 14px;
+        spacing: 12px;
+
+        Rectangle {
+            width: 4px;
+            height: root.height;
+            border-radius: 2px;
+            background: #3d9cff;
+        }
+
+        VerticalLayout {
+            padding-top: 14px;
+            padding-bottom: 14px;
+            spacing: 4px;
+            Text {
+                text: root.title;
+                color: root.light-theme ? #172033 : #f4f7fb;
+                font-size: 14px;
+                font-family: "Microsoft YaHei UI";
+                font-weight: 700;
+            }
+            Text {
+                text: root.description;
+                color: root.light-theme ? #5d6d80 : #8fa0b5;
+                font-size: 12px;
+                font-family: "Microsoft YaHei UI";
+                font-weight: 500;
+                wrap: word-wrap;
+            }
+        }
+    }
+}
+
+component MiniBar inherits Rectangle {
+    in property <float> ratio;
+    in property <bool> light-theme: false;
+    height: 7px;
+    border-radius: 4px;
+    background: root.light-theme ? #d4dfed : #233148;
+    Rectangle {
+        x: 0px;
+        y: 0px;
+        height: parent.height;
+        width: parent.width * root.ratio;
+        border-radius: 4px;
+        background: #2f8cff;
+    }
+}
+
+component MetricTag inherits Rectangle {
+    in property <string> title;
+    in property <string> value;
+    in property <bool> light-theme: false;
+
+    height: 58px;
+    border-radius: 10px;
+    background: root.light-theme ? #f3f7fc : #0d1724;
+    border-width: 1px;
+    border-color: root.light-theme ? #c9d8eb : #21334b;
+
+    VerticalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        spacing: 3px;
+        Text {
+            text: root.title;
+            color: root.light-theme ? #5d6d80 : #8fa0b5;
+            font-family: "Microsoft YaHei UI";
+            font-size: 13px;
+            font-weight: 600;
+        }
+        Text {
+            text: root.value;
+            color: root.light-theme ? #172033 : #f4f7fb;
+            font-family: "Microsoft YaHei UI";
+            font-size: 18px;
+            font-weight: 800;
+        }
+    }
+}
+
+component UsageSplitBar inherits Rectangle {
+    in property <float> ratio;
+    in property <string> used-label;
+    in property <string> available-label;
+    in property <bool> light-theme: false;
+
+    height: 60px;
+    border-radius: 12px;
+    background: root.light-theme ? #f3f7fc : #0d1724;
+    border-width: 1px;
+    border-color: root.light-theme ? #c9d8eb : #21334b;
+
+    VerticalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 11px;
+        padding-bottom: 11px;
+        spacing: 8px;
+
+        HorizontalLayout {
+            Text {
+                text: root.used-label;
+                color: root.light-theme ? #1767c7 : #9fcfff;
+                font-family: "Microsoft YaHei UI";
+                font-size: 13px;
+                font-weight: 700;
+            }
+            Text {
+                text: root.available-label;
+                color: root.light-theme ? #5d6d80 : #8fa0b5;
+                font-family: "Microsoft YaHei UI";
+                font-size: 13px;
+                font-weight: 700;
+                horizontal-alignment: right;
+            }
+        }
+
+        Rectangle {
+            height: 12px;
+            border-radius: 6px;
+            background: root.light-theme ? #d4dfed : #26364c;
+            Rectangle {
+                x: 0px;
+                y: 0px;
+                height: parent.height;
+                width: parent.width * root.ratio;
+                border-radius: 6px;
+                background: #2f8cff;
+            }
+        }
+    }
+}
+
+component MemoryPanel inherits Rectangle {
+    in property <float> ratio;
+    in property <string> percent-text;
+    in property <string> used-text;
+    in property <string> total-text;
+    in property <string> available-text;
+    in property <string> available-percent-text;
+    in property <string> label;
+    in property <string> used-memory-label;
+    in property <string> available-memory-label;
+    in property <string> used-ratio-label;
+    in property <string> available-ratio-label;
+    in property <string> refresh-text;
+    in property <bool> light-theme: false;
+
+    border-radius: 14px;
+    background: root.light-theme ? #ffffff : #101926;
+    border-width: 1px;
+    border-color: root.light-theme ? #bfd1e6 : #1f3046;
+    height: 360px;
+
+    VerticalLayout {
+        padding: 26px;
+        spacing: 9px;
+
+        Text {
+            text: root.label;
+            color: root.light-theme ? #5d6d80 : #a9b9cb;
+            font-size: 15px;
+            font-family: "Microsoft YaHei UI";
+            font-weight: 700;
+        }
+
+        Text {
+            text: root.percent-text;
+            color: #4aa3ff;
+            font-size: 64px;
+            font-family: "Microsoft YaHei UI";
+            font-weight: 800;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: root.used-text + " / " + root.total-text;
+            color: root.light-theme ? #304057 : #d7e0ec;
+            font-size: 17px;
+            font-family: "Microsoft YaHei UI";
+            font-weight: 700;
+            horizontal-alignment: center;
+        }
+
+        HorizontalLayout {
+            spacing: 10px;
+            MetricTag {
+                width: (parent.width - 10px) / 2;
+                light-theme: root.light-theme;
+                title: root.used-memory-label;
+                value: root.used-text;
+            }
+            MetricTag {
+                width: (parent.width - 10px) / 2;
+                light-theme: root.light-theme;
+                title: root.available-memory-label;
+                value: root.available-text;
+            }
+        }
+
+        UsageSplitBar {
+            ratio: root.ratio;
+            light-theme: root.light-theme;
+            used-label: root.used-ratio-label + " " + root.percent-text;
+            available-label: root.available-ratio-label + " " + root.available-percent-text;
+        }
+
+        Text {
+            text: root.refresh-text;
+            color: root.light-theme ? #6b7a8d : #748399;
+            font-size: 13px;
+            font-family: "Microsoft YaHei UI";
+            font-weight: 500;
+            horizontal-alignment: center;
+        }
+    }
+}
+
+component StatCard inherits Rectangle {
+    in property <string> title;
+    in property <string> value;
+    in property <string> hint;
+    in property <float> ratio;
+    in property <bool> light-theme: false;
+
+    border-radius: 12px;
+    background: root.light-theme ? #ffffff : #101926;
+    border-width: 1px;
+    border-color: root.light-theme ? #bfd1e6 : #1f3046;
+    height: 173px;
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 8px;
+
+        Text {
+            text: root.title;
+            color: root.light-theme ? #5d6d80 : #93a4b8;
+            font-family: "Microsoft YaHei UI";
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        Text {
+            text: root.value;
+            color: root.light-theme ? #172033 : #f4f7fb;
+            font-family: "Microsoft YaHei UI";
+            font-size: 17px;
+            font-weight: 700;
+            overflow: elide;
+        }
+
+        MiniBar { ratio: root.ratio; light-theme: root.light-theme; }
+
+        Text {
+            text: root.hint;
+            color: root.light-theme ? #6b7a8d : #748399;
+            font-family: "Microsoft YaHei UI";
+            font-size: 12px;
+            font-weight: 500;
+            wrap: word-wrap;
+        }
+    }
+}
+
+component HardwareCard inherits Rectangle {
+    in property <string> title;
+    in property <string> summary;
+    in property <bool> light-theme: false;
+
+    height: 64px;
+    border-radius: 12px;
+    background: root.light-theme ? #ffffff : #101926;
+    border-width: 1px;
+    border-color: root.light-theme ? #bfd1e6 : #1f3046;
+
+    HorizontalLayout {
+        padding-left: 20px;
+        padding-right: 20px;
+        spacing: 14px;
+
+        Rectangle {
+            width: 4px;
+            height: 64px;
+            border-radius: 2px;
+            background: #39c6d6;
+        }
+
+        VerticalLayout {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            spacing: 4px;
+
+            Text {
+                text: root.title;
+                color: root.light-theme ? #172033 : #f4f7fb;
+                font-family: "Microsoft YaHei UI";
+                font-size: 14px;
+                font-weight: 700;
+            }
+
+            Text {
+                text: root.summary;
+                color: root.light-theme ? #5d6d80 : #a8b8cb;
+                font-family: "Microsoft YaHei UI";
+                font-size: 15px;
+                font-weight: 600;
+                overflow: elide;
+            }
+        }
+    }
+}
+
+component TaskFeedbackBar inherits Rectangle {
+    in property <string> status;
+    in property <float> progress;
+    in property <bool> active;
+    in property <bool> light-theme: false;
+
+    height: 42px;
+    border-radius: 12px;
+    background: root.light-theme ? (root.active ? #e8f1ff : #ffffff) : (root.active ? #152033 : #101926);
+    border-width: 1px;
+    border-color: root.light-theme ? (root.active ? #8ebcf4 : #bfd1e6) : (root.active ? #2c5f94 : #22344a);
+
+    VerticalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        spacing: 6px;
+
+        Text {
+            text: root.status;
+            color: root.light-theme ? (root.active ? #1767c7 : #5d6d80) : (root.active ? #9fcfff : #a8b8cb);
+            font-family: "Microsoft YaHei UI";
+            font-size: 13px;
+            font-weight: 700;
+            overflow: elide;
+        }
+
+        Rectangle {
+            height: 6px;
+            border-radius: 3px;
+            background: root.light-theme ? #d4dfed : #253348;
+            Rectangle {
+                x: 0px;
+                y: 0px;
+                height: parent.height;
+                width: parent.width * root.progress;
+                border-radius: 3px;
+                background: root.active ? #2f8cff : #39c6d6;
+            }
+        }
+    }
+}
+
+export component DashboardPage inherits Rectangle {
+    in property <bool> light-theme: false;
+    in property <float> memory-usage-ratio;
+    in property <float> available-ratio;
+    in property <float> commit-ratio;
+    in property <float> cache-ratio;
+    in property <float> process-ratio;
+    in property <string> memory-usage-text;
+    in property <string> physical-used-text;
+    in property <string> physical-total-text;
+    in property <string> available-text;
+    in property <string> available-percent-text;
+    in property <string> commit-text;
+    in property <string> system-cache-text;
+    in property <string> process-count-text;
+    in property <string> memory-hardware-summary;
+    in property <bool> is-refreshing;
+    in property <bool> busy;
+    in property <bool> task-feedback-visible;
+    in property <string> task-status-text;
+    in property <float> task-progress-ratio;
+    in property <string> text-title;
+    in property <string> text-tagline;
+    in property <string> text-memory-hardware;
+    in property <string> text-current-memory;
+    in property <string> text-used-memory;
+    in property <string> text-available-memory;
+    in property <string> text-used-ratio;
+    in property <string> text-available-ratio;
+    in property <string> text-commit-usage;
+    in property <string> text-system-cache;
+    in property <string> text-process-count;
+    in property <string> text-no-kill;
+    in property <string> text-no-kill-desc;
+    in property <string> text-no-inject;
+    in property <string> text-no-inject-desc;
+    in property <string> text-manual-only;
+    in property <string> text-manual-only-desc;
+    in property <string> text-no-default-cache-cleanup;
+    in property <string> text-no-default-cache-cleanup-desc;
+    in property <string> text-normal-optimize;
+    in property <string> text-strong-optimize;
+    in property <string> text-refresh-status;
+    in property <string> text-refreshing;
+    in property <string> text-auto-refresh;
+    in property <string> text-available-hint;
+    in property <string> text-commit-hint;
+    in property <string> text-cache-hint;
+    in property <string> text-process-hint;
+
+    callback refresh();
+    callback normal-optimize();
+    callback strong-optimize();
+
+    background: root.light-theme ? #f5f8fc : #0f141d;
+
+    VerticalLayout {
+        padding-left: 26px;
+        padding-right: 26px;
+        padding-top: 24px;
+        padding-bottom: 32px;
+        spacing: 16px;
+
+        HorizontalLayout {
+            width: root.width - 52px;
+            spacing: 16px;
+            VerticalLayout {
+                spacing: 5px;
+                min-width: 520px;
+                Text {
+                    text: root.text-title;
+                    color: root.light-theme ? #172033 : #f4f7fb;
+                    font-family: "Microsoft YaHei UI";
+                    font-size: 28px;
+                    font-weight: 700;
+                }
+                Text {
+                    text: root.text-tagline;
+                    color: root.light-theme ? #5d6d80 : #9aa8ba;
+                    font-family: "Microsoft YaHei UI";
+                    font-size: 14px;
+                    font-weight: 500;
+                    overflow: elide;
+                }
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                alignment: end;
+                ActionButton {
+                    width: 132px;
+                    light-theme: root.light-theme;
+                    text: root.text-normal-optimize;
+                    button-color: #216ee8;
+                    enabled: !root.busy;
+                    clicked => { root.normal-optimize(); }
+                }
+                IconButton {
+                    icon: "↻";
+                    light-theme: root.light-theme;
+                    enabled: !root.is-refreshing;
+                    clicked => { root.refresh(); }
+                }
+            }
+        }
+
+        if root.task-feedback-visible : TaskFeedbackBar {
+            width: root.width - 52px;
+            status: root.task-status-text;
+            light-theme: root.light-theme;
+            progress: root.task-progress-ratio;
+            active: root.busy;
+        }
+
+        HorizontalLayout {
+            width: root.width - 52px;
+            spacing: 10px;
+            SafetyPrincipleCard { width: (parent.width - 30px) / 4; light-theme: root.light-theme; title: root.text-no-kill; description: root.text-no-kill-desc; }
+            SafetyPrincipleCard { width: (parent.width - 30px) / 4; light-theme: root.light-theme; title: root.text-no-inject; description: root.text-no-inject-desc; }
+            SafetyPrincipleCard { width: (parent.width - 30px) / 4; light-theme: root.light-theme; title: root.text-manual-only; description: root.text-manual-only-desc; }
+            SafetyPrincipleCard { width: (parent.width - 30px) / 4; light-theme: root.light-theme; title: root.text-no-default-cache-cleanup; description: root.text-no-default-cache-cleanup-desc; }
+        }
+
+        HorizontalLayout {
+            width: root.width - 52px;
+            spacing: 16px;
+
+            MemoryPanel {
+                width: (parent.width - 16px) * 0.48;
+                light-theme: root.light-theme;
+                ratio: root.memory-usage-ratio;
+                percent-text: root.memory-usage-text;
+                used-text: root.physical-used-text;
+                total-text: root.physical-total-text;
+                available-text: root.available-text;
+                available-percent-text: root.available-percent-text;
+                label: root.text-current-memory;
+                used-memory-label: root.text-used-memory;
+                available-memory-label: root.text-available-memory;
+                used-ratio-label: root.text-used-ratio;
+                available-ratio-label: root.text-available-ratio;
+                refresh-text: root.is-refreshing ? root.text-refreshing : root.text-auto-refresh;
+            }
+
+            VerticalLayout {
+                width: (parent.width - 16px) * 0.52;
+                height: 360px;
+                spacing: 14px;
+
+                HorizontalLayout {
+                    spacing: 14px;
+                    StatCard {
+                        width: (parent.width - 14px) / 2;
+                        light-theme: root.light-theme;
+                        title: root.text-available-memory;
+                        value: root.available-text;
+                        hint: root.text-available-hint;
+                        ratio: root.available-ratio;
+                    }
+                    StatCard {
+                        width: (parent.width - 14px) / 2;
+                        light-theme: root.light-theme;
+                        title: root.text-system-cache;
+                        value: root.system-cache-text;
+                        hint: root.text-cache-hint;
+                        ratio: root.cache-ratio;
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 14px;
+                    StatCard {
+                        width: (parent.width - 14px) / 2;
+                        light-theme: root.light-theme;
+                        title: root.text-commit-usage;
+                        value: root.commit-text;
+                        hint: root.text-commit-hint;
+                        ratio: root.commit-ratio;
+                    }
+                    StatCard {
+                        width: (parent.width - 14px) / 2;
+                        light-theme: root.light-theme;
+                        title: root.text-process-count;
+                        value: root.process-count-text;
+                        hint: root.text-process-hint;
+                        ratio: root.process-ratio;
+                    }
+                }
+            }
+        }
+
+        HardwareCard {
+            width: root.width - 52px;
+            light-theme: root.light-theme;
+            title: root.text-memory-hardware;
+            summary: root.memory-hardware-summary;
+        }
+    }
+}

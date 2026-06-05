@@ -1,0 +1,235 @@
+import { ScrollView } from "std-widgets.slint";
+
+component ChoiceButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> selected;
+    in property <bool> enabled: true;
+    in property <bool> light-theme: false;
+    callback clicked();
+    height: 34px;
+    min-width: 86px;
+    border-radius: 17px;
+    background: !root.enabled ? (root.light-theme ? #d5deeb : #202937) : (root.selected ? #1d5fd1 : (root.light-theme ? #edf3fa : #222d3d));
+    border-width: 1px;
+    border-color: root.selected ? #3983ff : (root.light-theme ? #c3d2e5 : #2e3d52);
+    Text {
+        text: root.text;
+        color: !root.enabled ? #727f91 : (root.selected ? #ffffff : (root.light-theme ? #304057 : #b8c2d1));
+        font-size: 13px;
+        font-family: "Microsoft YaHei UI";
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    touch := TouchArea {
+        clicked => {
+            if root.enabled {
+                root.clicked();
+            }
+        }
+    }
+}
+
+component SettingsButton inherits Rectangle {
+    in property <string> text;
+    in property <color> button-color: #216ee8;
+    in property <bool> light-theme: false;
+    in property <bool> danger: false;
+    callback clicked();
+    height: 38px;
+    min-width: 116px;
+    border-radius: 9px;
+    background: root.light-theme ? (root.danger ? (touch.pressed ? #983543 : root.button-color) : (touch.pressed ? #cbd8e8 : root.button-color)) : (touch.pressed ? #1c2634 : root.button-color);
+    Text {
+        text: root.text;
+        color: root.light-theme && !root.danger ? #172033 : #ffffff;
+        font-size: 13px;
+        font-family: "Microsoft YaHei UI";
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    touch := TouchArea { clicked => { root.clicked(); } }
+}
+
+component SettingsPanel inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <bool> light-theme: false;
+    border-radius: 12px;
+    background: root.light-theme ? #ffffff : #151c27;
+    border-width: 1px;
+    border-color: root.light-theme ? #bfd1e6 : #22344a;
+    min-height: 122px;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 10px;
+        Text { text: root.title; color: root.light-theme ? #172033 : #f4f7fb; font-size: 18px; font-weight: 800; font-family: "Microsoft YaHei UI"; }
+        Text { text: root.description; color: root.light-theme ? #5d6d80 : #9aa8ba; font-size: 13px; font-family: "Microsoft YaHei UI"; wrap: word-wrap; }
+        @children
+    }
+}
+
+export component SettingsPage inherits Rectangle {
+    in property <bool> light-theme: false;
+    in property <string> log-text;
+    in property <string> text-title;
+    in property <string> text-hint;
+    in property <string> text-reports;
+    in property <string> text-initialize-config;
+    in property <string> text-language;
+    in property <string> text-simplified-chinese;
+    in property <string> text-english;
+    in property <string> text-language-restart-hint;
+    in property <string> text-theme;
+    in property <string> text-dark;
+    in property <string> text-light;
+    in property <string> text-reports-desc;
+    in property <string> text-settings-apply;
+    in property <string> text-theme-dark-ready;
+    in property <string> text-open-report;
+    in property <string> text-open-folder;
+    in property <string> text-choose-location;
+    in property <string> text-clear-history;
+    in property <string> text-clear-logs;
+    in property <string> text-choose-save-location;
+    in property <string> text-clear-report-history;
+    in property <string> text-clear-developer-logs;
+    in property <string> report-path-text;
+    in property <string> ui-language;
+    in property <string> ui-theme;
+    callback init-config();
+    callback select-language(string);
+    callback select-theme(string);
+    callback open-report();
+    callback open-report-folder();
+    callback choose-report-path();
+    callback clear-report-history();
+    callback clear-developer-logs();
+    callback apply-settings();
+
+    background: root.light-theme ? #f5f8fc : #0f141d;
+    ScrollView {
+        VerticalLayout {
+            padding-left: 28px;
+            padding-right: 28px;
+            padding-top: 24px;
+            padding-bottom: 32px;
+            spacing: 16px;
+
+            HorizontalLayout {
+                spacing: 16px;
+                Text { text: root.text-title; color: root.light-theme ? #172033 : #f4f7fb; font-size: 28px; font-weight: 700; font-family: "Microsoft YaHei UI"; vertical-alignment: center; }
+                HorizontalLayout {
+                    alignment: end;
+                    SettingsButton { width: 168px; text: root.text-settings-apply; button-color: #216ee8; clicked => { root.apply-settings(); } }
+                }
+            }
+            Text { text: root.text-hint; color: root.light-theme ? #5d6d80 : #9aa8ba; font-size: 15px; font-family: "Microsoft YaHei UI"; wrap: word-wrap; }
+
+            if root.width > 820px : HorizontalLayout {
+                spacing: 16px;
+                SettingsPanel {
+                    width: (root.width - 72px) / 2;
+                    height: 164px;
+                    light-theme: root.light-theme;
+                    title: root.text-language;
+                    description: root.text-language-restart-hint;
+                    HorizontalLayout {
+                        spacing: 10px;
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-simplified-chinese; selected: root.ui-language == "zh-CN"; clicked => { root.select-language("zh-CN"); } }
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-english; selected: root.ui-language == "en-US"; clicked => { root.select-language("en-US"); } }
+                    }
+                }
+                SettingsPanel {
+                    width: (root.width - 72px) / 2;
+                    height: 164px;
+                    light-theme: root.light-theme;
+                    title: root.text-theme;
+                    description: root.text-theme-dark-ready;
+                    HorizontalLayout {
+                        spacing: 10px;
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-dark; selected: root.ui-theme == "dark"; clicked => { root.select-theme("dark"); } }
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-light; selected: root.ui-theme == "light"; clicked => { root.select-theme("light"); } }
+                    }
+                }
+            }
+            if root.width <= 820px : VerticalLayout {
+                spacing: 16px;
+                SettingsPanel {
+                    width: root.width - 56px;
+                    height: 164px;
+                    light-theme: root.light-theme;
+                    title: root.text-language;
+                    description: root.text-language-restart-hint;
+                    HorizontalLayout {
+                        spacing: 10px;
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-simplified-chinese; selected: root.ui-language == "zh-CN"; clicked => { root.select-language("zh-CN"); } }
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-english; selected: root.ui-language == "en-US"; clicked => { root.select-language("en-US"); } }
+                    }
+                }
+                SettingsPanel {
+                    width: root.width - 56px;
+                    height: 164px;
+                    light-theme: root.light-theme;
+                    title: root.text-theme;
+                    description: root.text-theme-dark-ready;
+                    HorizontalLayout {
+                        spacing: 10px;
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-dark; selected: root.ui-theme == "dark"; clicked => { root.select-theme("dark"); } }
+                        ChoiceButton { light-theme: root.light-theme; text: root.text-light; selected: root.ui-theme == "light"; clicked => { root.select-theme("light"); } }
+                    }
+                }
+            }
+
+            Rectangle {
+                border-radius: 12px;
+                background: root.light-theme ? #ffffff : #151c27;
+                border-width: 1px;
+                border-color: root.light-theme ? #bfd1e6 : #22344a;
+                height: root.width <= 780px ? 404px : 244px;
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 12px;
+                    Text { text: root.text-reports; color: root.light-theme ? #172033 : #f4f7fb; font-size: 18px; font-weight: 800; font-family: "Microsoft YaHei UI"; }
+                    Text { text: root.text-reports-desc; color: root.light-theme ? #5d6d80 : #9aa8ba; font-size: 13px; font-family: "Microsoft YaHei UI"; wrap: word-wrap; }
+                    Text { text: root.report-path-text; color: root.light-theme ? #405065 : #cdd6e3; font-size: 12px; font-family: "Microsoft YaHei UI"; wrap: word-wrap; }
+                    if root.width > 780px : HorizontalLayout {
+                        spacing: 10px;
+                        SettingsButton { width: 136px; light-theme: root.light-theme; text: root.text-open-report; button-color: root.light-theme ? #dbe6f4 : #2a3545; clicked => { root.open-report(); } }
+                        SettingsButton { width: 136px; light-theme: root.light-theme; text: root.text-open-folder; button-color: root.light-theme ? #dbe6f4 : #2a3545; clicked => { root.open-report-folder(); } }
+                        SettingsButton { width: 136px; light-theme: root.light-theme; text: root.text-choose-location; button-color: root.light-theme ? #dbe6f4 : #2a3545; clicked => { root.choose-report-path(); } }
+                        SettingsButton { width: 136px; light-theme: root.light-theme; danger: true; text: root.text-clear-history; button-color: root.light-theme ? #b94958 : #5a2630; clicked => { root.clear-report-history(); } }
+                        SettingsButton { width: 136px; light-theme: root.light-theme; danger: true; text: root.text-clear-logs; button-color: root.light-theme ? #b94958 : #5a2630; clicked => { root.clear-developer-logs(); } }
+                    }
+                    if root.width <= 780px : VerticalLayout {
+                        spacing: 10px;
+                        SettingsButton { light-theme: root.light-theme; text: root.text-open-report; button-color: root.light-theme ? #dbe6f4 : #2a3545; clicked => { root.open-report(); } }
+                        SettingsButton { light-theme: root.light-theme; text: root.text-open-folder; button-color: root.light-theme ? #dbe6f4 : #2a3545; clicked => { root.open-report-folder(); } }
+                        SettingsButton { light-theme: root.light-theme; text: root.text-choose-save-location; button-color: root.light-theme ? #dbe6f4 : #2a3545; clicked => { root.choose-report-path(); } }
+                        SettingsButton { light-theme: root.light-theme; danger: true; text: root.text-clear-report-history; button-color: root.light-theme ? #b94958 : #5a2630; clicked => { root.clear-report-history(); } }
+                        SettingsButton { light-theme: root.light-theme; danger: true; text: root.text-clear-developer-logs; button-color: root.light-theme ? #b94958 : #5a2630; clicked => { root.clear-developer-logs(); } }
+                    }
+                }
+            }
+
+            Rectangle {
+                border-radius: 12px;
+                background: root.light-theme ? #ffffff : #151c27;
+                border-width: 1px;
+                border-color: root.light-theme ? #bfd1e6 : #22344a;
+                height: 92px;
+                HorizontalLayout {
+                    padding: 16px;
+                    spacing: 16px;
+                    VerticalLayout {
+                        spacing: 8px;
+                        Text { text: root.text-initialize-config; color: root.light-theme ? #172033 : #f4f7fb; font-size: 18px; font-weight: 800; font-family: "Microsoft YaHei UI"; }
+                        Text { text: root.log-text; color: root.light-theme ? #5d6d80 : #9aa8ba; font-size: 13px; font-family: "Microsoft YaHei UI"; wrap: word-wrap; }
+                    }
+                    SettingsButton { width: 220px; light-theme: false; text: root.text-initialize-config; clicked => { root.init-config(); } }
+                }
+            }
+        }
+    }
+}
