@@ -1,4 +1,4 @@
-# 使用轻存 · MemSpark 前须知
+# 使用内存优化 · MemSpark 前须知
 
 **简体中文** | [English](safety.en.md) · [返回首页](../README.md)
 

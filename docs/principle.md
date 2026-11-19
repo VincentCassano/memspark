@@ -1,4 +1,4 @@
-# 轻存 · MemSpark 清理原理
+# 内存优化 · MemSpark 清理原理
 
 **简体中文** | [English](principle.en.md) · [返回首页](../README.md)
 

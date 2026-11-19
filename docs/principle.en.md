@@ -1,4 +1,4 @@
-# How MemSpark · 轻存 cleanup works
+# How MemSpark · 内存优化 cleanup works
 
 [简体中文](principle.md) | **English** · [Home](../README.en.md)
 

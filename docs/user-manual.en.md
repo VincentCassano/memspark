@@ -1,4 +1,4 @@
-# MemSpark · 轻存 user guide
+# MemSpark · 内存优化 user guide
 
 [简体中文](user-manual.md) | **English** · [Home](../README.en.md)
 

@@ -1,4 +1,4 @@
-# Before you run MemSpark · 轻存 cleanup
+# Before you run MemSpark · 内存优化 cleanup
 
 [简体中文](safety.md) | **English** · [Home](../README.en.md)
 

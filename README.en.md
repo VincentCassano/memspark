@@ -1,4 +1,4 @@
-# MemSpark · 轻存
+# MemSpark · 内存优化
 
 [简体中文](README.md) | **English**
 
