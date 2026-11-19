@@ -1,119 +1,74 @@
-# MemSpark 用户手册
+# 轻存 · MemSpark 使用手册
 
-## CLI 用法
+**简体中文** | [English](user-manual.en.md) · [返回首页](../README.md)
 
-查看状态：
+## 第一次运行
 
-```bash
-memspark status
-```
+从 [Releases](https://github.com/VincentCassano/memspark/releases/latest) 下载 Windows x64 GUI 单文件版，直接运行即可。GUI 会自行启动提权子进程，不需要在旁边放置 CLI。
 
-预览内存优化：
+执行清理前先保存工作。程序为了接近 25% 的内存占用目标，可能关闭或强制结束其他程序。正在使用的前台程序也不能视为一定受保护，具体行为见[使用前须知](safety.md)。
 
-```bash
-memspark trim --dry-run
-```
+## 图形界面
 
-查看完整跳过明细：
+| 页面 | 用途 |
+| --- | --- |
+| Dashboard | 查看物理内存、可用内存、Commit、系统缓存和进程数量；点击「内存优化」执行清理 |
+| Report | 查看最近一次报告，包括内存变化、进程结果和跳过原因 |
+| Settings | 切换语言和主题，管理报告保存位置，清理历史报告及开发日志 |
+| About | 查看版本、许可和使用说明 |
 
-```bash
-memspark trim --dry-run --verbose
-```
+清理需要管理员权限。出现 UAC 窗口时，同意授权才会继续；清理结束后到 Report 查看结果。
 
-执行内存优化：
+## 命令行
 
-```bash
-memspark trim
-```
+以下命令在完整包解压目录内运行。单文件 CLI 的文件名不同，请替换 `memspark-cli.exe`。
 
-初始化配置：
+| 命令 | 用途 |
+| --- | --- |
+| `.\memspark-cli.exe status` | 查看内存状态和进程数量 |
+| `.\memspark-cli.exe trim --dry-run` | 预览工作集候选，不执行清理 |
+| `.\memspark-cli.exe trim --dry-run --verbose` | 预览时显示完整跳过明细 |
+| `.\memspark-cli.exe trim` | 执行清理；需要时自动请求管理员权限 |
+| `.\memspark-cli.exe report last` | 查看最近一次报告 |
+| `.\memspark-cli.exe config init` | 创建默认配置；已有文件会保留 |
+| `.\memspark-cli.exe config show` | 显示当前生效的配置 |
 
-```bash
-memspark config init
-```
+`config init --force` 会用默认配置覆盖已有文件，使用前请自行备份。
 
-查看最近报告：
-
-```bash
-memspark report last
-```
-
-release 构建后的 PowerShell 用法：
-
-```powershell
-.\target\release\memspark.exe status
-.\target\release\memspark.exe trim --dry-run
-.\target\release\memspark.exe trim --dry-run --verbose
-.\target\release\memspark.exe trim
-.\target\release\memspark.exe report last
-```
-
-## GUI 用法
-
-```bash
-cargo run -p memspark-ui
-```
-
-Dashboard 页面展示当前物理内存、可用内存、Commit、System Cache 和进程数量，并直接提供“内存优化”执行入口。Report 页面展示最近一次报告。Settings 页面管理报告路径和界面选项。About 页面展示安全边界。
+`--dry-run` 适合先了解工作集候选和跳过原因。它不会执行内存释放，也不会结束进程，但会保存报告和日志，并替换「最近一次报告」。实际运行中的进程状态会变化，预览结果也不包含后续结束进程阶段的完整候选名单。
 
 ## 配置文件
 
-默认路径：
+默认配置路径为 `%APPDATA%\MemSpark\config.toml`。文件不存在时使用内置默认值。
+
+通过 `--config` 指定其他路径：
+
+```powershell
+.\memspark-cli.exe --config .\config.toml config init
+.\memspark-cli.exe --config .\config.toml config show
+.\memspark-cli.exe --config .\config.toml trim --dry-run
+```
+
+配置中的 `advanced_cleanup` 不是当前清理入口的系统释放开关。实际 `trim` 使用固定的目标清理流程，不能通过将这些字段设为 `false` 来保证只整理工作集。
+
+## 报告与日志
+
+默认位置：
 
 ```text
-%APPDATA%\MemSpark\config.toml
+%APPDATA%\MemSpark\
+├── config.toml
+├── last_report.json
+├── history\
+└── logs\
 ```
 
-CLI 可通过全局参数指定：
+保存新报告前，程序会将上一份报告复制到 `history`。`logs` 中的开发日志包含详细文本报告、统计、每个进程的处理结果和原始 JSON。
 
-```bash
-memspark --config D:\path\config.toml config show
-```
+Settings 中的清理按钮分别删除历史目录内的 JSON 报告和日志目录内的 `.log` 文件。提交问题时，建议提供版本、Windows 版本、执行方式，以及删去私人信息后的报告或日志。
 
-## 报告查看
+## 结果怎么看
 
-最近一次报告默认保存为 JSON：
+优先看清理后的物理内存占用、可用内存变化和处理结果。单个进程工作集的减少量不能简单当作整机实际释放量，两者统计口径不同。
 
-```text
-%APPDATA%\MemSpark\last_report.json
-```
-
-再次优化时，上一份最近报告会被复制到历史目录：
-
-```text
-%APPDATA%\MemSpark\history
-```
-
-每次优化还会写入开发者日志：
-
-```text
-%APPDATA%\MemSpark\logs
-```
-
-开发者日志包含详细文本报告、核心统计、跳过/失败原因统计、每个进程的处理结果和原始 JSON。
-
-CLI 查看：
-
-```bash
-memspark report last
-```
-
-GUI 在 Report 页面查看。该页面会围绕 25% 目标展示最终内存占用、可用内存变化、工作集处理数量和系统释放状态。Settings 页面提供“清理历史报告”和“清理开发日志”按钮，分别用于删除历史目录中的 JSON 报告和日志目录中的 `.log` 文件。
-
-## 常见问题
-
-### MemSpark 会删除数据吗？
-
-不会删除程序数据，不注入进程，也不修改其他进程内存。为达成 25% 目标，它可能关闭或终止非系统后台候选进程，因此未保存数据可能丢失。
-
-### 为什么释放后程序重新打开会卡？
-
-被修剪页面重新访问时可能发生缺页，需要从文件或页面文件重新调入。
-
-### 为什么不默认自动定时清理？
-
-定时清理容易造成周期性缺页和卡顿。MemSpark 默认只在用户主动执行时运行。
-
-### 还有其他优化模式吗？
-
-没有。当前版本只保留“内存优化”，唯一目标是内存占用不高于 25%。
+没有达到 25% 不一定代表执行失败：系统、驱动和无法处理的进程仍会占用内存。清理后占用回升也很常见，因为程序会继续使用数据。原理见[清理原理](principle.md)。

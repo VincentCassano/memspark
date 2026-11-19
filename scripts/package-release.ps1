@@ -32,6 +32,10 @@ New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
 Copy-Item -LiteralPath $guiExe -Destination (Join-Path $packageDir "MemSpark.exe") -Force
 Copy-Item -LiteralPath $cliExe -Destination (Join-Path $packageDir "memspark-cli.exe") -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot "README.md") -Destination (Join-Path $packageDir "README.md") -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot "README.en.md") -Destination (Join-Path $packageDir "README.en.md") -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot "docs") -Destination (Join-Path $packageDir "docs") -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot "CONTRIBUTING.md") -Destination (Join-Path $packageDir "CONTRIBUTING.md") -Force
+Copy-Item -LiteralPath (Join-Path $repoRoot "SECURITY.md") -Destination (Join-Path $packageDir "SECURITY.md") -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSE") -Destination (Join-Path $packageDir "LICENSE") -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot "NOTICE.md") -Destination (Join-Path $packageDir "NOTICE.md") -Force
 

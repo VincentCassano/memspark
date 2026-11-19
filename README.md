@@ -1,195 +1,109 @@
-# MemSpark
+# 轻存 · MemSpark
 
-MemSpark 是一款面向 Windows 的轻量级内存优化工具。当前版本只保留一个模式：`内存优化`。唯一目标是尽量把内存占用压到 25% 或以下。
+**简体中文** | [English](README.en.md)
 
-MemSpark 不注入进程，不修改其他进程内存，也不删除程序数据。为达成 25% 目标，它会依次执行工作集整理、系统级内存释放，并在仍未达标时处理非系统后台候选进程。该过程可能导致未保存数据丢失或短暂卡顿，请在理解代价后使用。
+Windows 内存清理工具，提供图形界面和命令行。可以查看内存状态、手动执行清理，并查看每次清理前后的变化。
 
-## 下载
+> 使用前请保存工作。清理会先整理进程工作集和系统缓存；如果内存占用仍高于 25%，还可能关闭或强制结束程序，包括浏览器。25% 是程序的清理目标，不是每台电脑都能达到的结果。
 
-当前发布版本：`v0.1.4`
+[下载](https://github.com/VincentCassano/memspark/releases/latest) · [使用手册](docs/user-manual.md) · [清理原理](docs/principle.md) · [使用前须知](docs/safety.md)
 
-下载地址：[GitHub Releases](https://github.com/VincentCassano/memspark/releases/latest)
+## 下载与使用
 
-Release 页面提供 3 个 Windows x64 文件：
+在 [Releases](https://github.com/VincentCassano/memspark/releases/latest) 选择 Windows x64 文件：
 
-- `MemSpark-GUI-v0.1.4-windows-x64.exe`：图形界面版本，适合直接双击使用。
-- `MemSpark-CLI-v0.1.4-windows-x64.exe`：命令行版本，适合在 PowerShell、Windows Terminal 或脚本中使用。
-- `MemSpark-v0.1.4-windows-x64.zip`：完整包，包含 `memspark-ui.exe` 和 `memspark-cli.exe`。
+| 文件 | 用途 |
+| --- | --- |
+| `MemSpark-GUI-*-windows-x64.exe` | 图形界面，下载后直接运行 |
+| `MemSpark-CLI-*-windows-x64.exe` | 命令行，适合 PowerShell 或脚本调用 |
+| `MemSpark-*-windows-x64.zip` | 同时包含图形界面和命令行程序 |
 
-## 功能定位
+初次使用建议选择 GUI 单文件版，不需要另外下载 CLI。
 
-- 只保留 `trim` 一个优化入口。
-- 非 dry-run 执行会自动请求管理员权限。
-- CLI 和 Slint GUI 共用 `memspark-core`。
-- GUI 和 CLI 都已嵌入 MemSpark 程序图标。
-- GUI 支持深色和浅色主题。
-- 默认保存最近一次优化报告到 `%APPDATA%\MemSpark\last_report.json`，覆盖前会把上一份报告归档到 `%APPDATA%\MemSpark\history`。
-- 每次优化会写入开发者日志到 `%APPDATA%\MemSpark\logs`，日志包含详细文本报告、统计信息、进程结果和原始 JSON。
-- 系统关键进程和 MemSpark 自身属于内部硬边界，不提供用户可编辑进程名单。
+1. 保存文档，结束不希望被打断的任务。
+2. 运行 GUI，在 Dashboard 页面查看内存状态。
+3. 点击「内存优化」。实际清理需要管理员权限，Windows 会弹出 UAC 授权窗口。
+4. 完成后到 Report 页面查看结果。Settings 页面可以切换中英文、深浅主题，以及管理报告和日志。
 
-## GUI.exe 使用方式
+## 清理会做什么
 
-### 直接运行单文件 GUI
+清理只有一个模式，按以下顺序执行：
 
-1. 从 [Releases](https://github.com/VincentCassano/memspark/releases/latest) 下载 `MemSpark-GUI-v0.1.4-windows-x64.exe`。
-2. 双击运行。
-3. 在 Dashboard 页面点击 `内存优化`。
-4. Windows 弹出 UAC 管理员授权时，选择允许。
-5. 优化结束后，在 Report 页面查看本次结果。
+1. 整理符合条件的进程工作集，让 Windows 回收可移出的物理内存页面。
+2. 执行系统级释放，包括系统工作集、修改页列表和待机列表的处理。
+3. 如果仍未达到 25% 目标，尝试关闭候选程序；必要时强制终止。
+4. 记录内存变化、处理结果和失败或跳过原因。
 
-GUI 单文件版本不需要同目录额外放置 CLI 程序。管理员释放会由 GUI 自身启动提权子进程完成。
+工作集缩小后，程序再次访问数据时可能需要把页面调回内存，因此占用可能回升，也可能出现短暂卡顿。这不表示程序本身需要的内存变少了。详细说明见[清理原理](docs/principle.md)。
 
-### 使用完整 zip 包中的 GUI
+## 命令行
 
-1. 下载 `MemSpark-v0.1.4-windows-x64.zip`。
-2. 解压到任意目录。
-3. 双击运行解压目录中的 `memspark-ui.exe`。
-4. 点击 Dashboard 页面右上角的 `内存优化`。
-
-GUI 页面说明：
-
-- Dashboard：查看当前内存占用、可用内存、系统缓存、进程数量，并执行内存优化。
-- Report：查看最近一次优化报告、最终内存占用、可用内存变化、处理进程和跳过原因。
-- Settings：切换语言和主题，打开报告目录，清理历史报告和开发者日志。
-- About：查看版本、许可和安全边界说明。
-
-## CLI.exe 使用方式
-
-### 直接运行单文件 CLI
-
-从 [Releases](https://github.com/VincentCassano/memspark/releases/latest) 下载 `MemSpark-CLI-v0.1.4-windows-x64.exe` 后，在该文件所在目录打开 PowerShell：
+以下示例使用完整包中的 `memspark-cli.exe`。单文件 CLI 请换成下载的实际文件名。
 
 ```powershell
-.\MemSpark-CLI-v0.1.4-windows-x64.exe status
-.\MemSpark-CLI-v0.1.4-windows-x64.exe trim --dry-run
-.\MemSpark-CLI-v0.1.4-windows-x64.exe trim --dry-run --verbose
-.\MemSpark-CLI-v0.1.4-windows-x64.exe trim
-.\MemSpark-CLI-v0.1.4-windows-x64.exe report last
-```
-
-常用命令：
-
-- `status`：查看当前内存状态。
-- `trim --dry-run`：只预览将会处理的候选进程，不实际释放内存。
-- `trim --dry-run --verbose`：预览并显示更完整的跳过原因。
-- `trim`：执行内存优化。非管理员运行时会自动请求管理员权限。
-- `report last`：读取最近一次优化报告。
-- `config init`：初始化默认配置文件。
-- `config show`：显示当前配置。
-
-CLI 支持通过 `--config <path>` 指定配置文件，例如：
-
-```powershell
-.\MemSpark-CLI-v0.1.4-windows-x64.exe --config .\config.toml trim
-```
-
-### 使用完整 zip 包中的 CLI
-
-下载并解压 `MemSpark-v0.1.4-windows-x64.zip` 后，在解压目录运行：
-
-```powershell
+# 查看内存状态
 .\memspark-cli.exe status
-.\memspark-cli.exe trim --dry-run
+
+# 预览工作集候选和跳过原因，不执行清理
+.\memspark-cli.exe trim --dry-run --verbose
+
+# 执行清理，可能关闭或强制结束程序
 .\memspark-cli.exe trim
+
+# 查看最近一次报告
 .\memspark-cli.exe report last
 ```
 
-## 开发版 CLI 用法
+`--dry-run` 不执行内存释放或结束进程，但仍会保存报告和日志。它不是实际清理过程中所有可能被结束程序的完整名单。
 
-```bash
-cargo run -p memspark-cli -- status
-cargo run -p memspark-cli -- trim --dry-run
-cargo run -p memspark-cli -- trim --dry-run --verbose
-cargo run -p memspark-cli -- trim
-cargo run -p memspark-cli -- config init
-cargo run -p memspark-cli -- config show
-cargo run -p memspark-cli -- report last
-```
+配置文件用法和更多命令见[使用手册](docs/user-manual.md)。
 
-本地 release 构建后：
+## 报告存在哪里
+
+默认保存在 `%APPDATA%\MemSpark\`：
+
+| 路径 | 内容 |
+| --- | --- |
+| `config.toml` | 配置文件，可用 `config init` 创建 |
+| `last_report.json` | 最近一次报告 |
+| `history\` | 之前的报告 |
+| `logs\` | 详细日志，包含进程结果和原始 JSON |
+
+报告和日志可能包含进程名称、PID 等信息。提交问题前，请先检查并删去不想公开的内容。
+
+## 从源码运行
+
+需要 Windows、Rust 稳定工具链和 MSVC 构建工具。项目使用 Rust、Slint 和 Windows API。
 
 ```powershell
-.\target\release\memspark.exe status
-.\target\release\memspark.exe trim --dry-run
-.\target\release\memspark.exe trim --dry-run --verbose
-.\target\release\memspark.exe trim
-.\target\release\memspark.exe report last
-```
-
-## 开发版 GUI 用法
-
-```bash
+git clone https://github.com/VincentCassano/memspark.git
+cd memspark
 cargo run -p memspark-ui
 ```
 
-开发版 GUI 当前包含 Dashboard、Report、Settings、About 页面。Dashboard 直接提供“内存优化”执行入口，优化任务在线程中执行，界面会在执行期间继续刷新内存占用率。
+运行命令行预览：
 
-## 配置与报告
-
-默认配置路径：
-
-```text
-%APPDATA%\MemSpark\config.toml
+```powershell
+cargo run -p memspark-cli -- trim --dry-run --verbose
 ```
 
-最近一次报告路径：
+构建发布版本：
 
-```text
-%APPDATA%\MemSpark\last_report.json
-```
-
-历史报告目录：
-
-```text
-%APPDATA%\MemSpark\history
-```
-
-开发者日志目录：
-
-```text
-%APPDATA%\MemSpark\logs
-```
-
-Report 页面会围绕 25% 目标展示最终内存占用、可用内存变化、工作集处理数量和系统释放状态。
-Settings 页面可以清理历史报告目录中的 JSON 报告，也可以清理开发者日志目录中的 `.log` 文件。
-
-可以通过 `--config <path>` 指定 CLI 配置文件。
-
-## 优化流程
-
-1. 读取优化前内存快照。
-2. 枚举进程并整理符合条件的后台工作集。
-3. 使用管理员权限执行系统级内存释放。
-4. 若仍高于 25%，继续处理非系统后台候选进程。
-5. 将上一份最近报告复制到历史目录。
-6. 写入新的最近优化报告。
-7. 写入开发者日志。
-
-## 编译
-
-```bash
+```powershell
 cargo build --release
 ```
 
-## 开发验证
+生成的程序是 `target\release\memspark-ui.exe` 和 `target\release\memspark.exe`。发布包中的 CLI 会重命名为 `memspark-cli.exe`。
 
-```bash
-cargo fmt --all -- --check
-cargo clippy --workspace --all-targets
-cargo test
-cargo build --release
-```
+## 项目结构
 
-## 文档
+- `crates/memspark-core`：内存状态、进程处理、清理策略和报告。
+- `crates/memspark-cli`：命令行入口。
+- `crates/memspark-ui`：Slint 图形界面。
+- `docs`：使用手册、原理和使用注意事项。
 
-- [用户手册](docs/user-manual.md)
-- [原理说明](docs/principle.md)
-- [安全边界](docs/safety.md)
+发现问题可以提交 [Issue](https://github.com/VincentCassano/memspark/issues)。开发约定见 [CONTRIBUTING.md](CONTRIBUTING.md)，安全问题见 [SECURITY.md](SECURITY.md)（这两份文档目前为英文）。
 
-## 免责声明
+## 许可
 
-MemSpark 会尽可能向 25% 内存占用目标推进，但 Windows 内核、驱动、硬件保留和不可终止进程仍可能限制最终结果。请在理解工作集整理、系统缓存释放和候选进程处理代价后使用。
-
-## License
-
-MIT
+[MIT](LICENSE)。
